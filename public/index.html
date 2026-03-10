@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Drop & Bounce</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Espacio Publicitario Superior (AdSense por ejemplo) -->
+    <div class="ad-container ad-top">
+        <span class="ad-placeholder">Top Banner Ad</span>
+    </div>
+
+    <div id="game-container">
+        <!-- Marcador Global en el Fondo -->
+        <div id="score-display">
+            <div id="current-score">0</div>
+            <div id="high-score">Record: 0</div>
+        </div>
+
+        <!-- Canvas HTML5 Principal -->
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Capa de Interfaz y Lógica de Multijugador -->
+        <div id="ui-layer">
+            <!-- Pantalla de Bienvenida / Lobby -->
+            <div id="lobby-overlay">
+                <div class="lobby-content">
+                    <h1>QUE NO CAIGA</h1>
+                    <p>¡Ayuda a mantener la bola en el aire!</p>
+
+                    <div class="input-group">
+                        <label for="player-name">Tu Nombre:</label>
+                        <input type="text" id="player-name" placeholder="Escribe tu nick..." maxlength="12">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Elige Color:</label>
+                        <div id="color-picker">
+                            <div class="color-opt active" data-hue="180" style="background: hsl(180, 100%, 65%)"></div>
+                            <div class="color-opt" data-hue="0" style="background: hsl(0, 100%, 65%)"></div>
+                            <div class="color-opt" data-hue="120" style="background: hsl(120, 100%, 65%)"></div>
+                            <div class="color-opt" data-hue="280" style="background: hsl(280, 100%, 65%)"></div>
+                            <div class="color-opt" data-hue="60" style="background: hsl(60, 100%, 65%)"></div>
+                            <div class="color-opt" data-hue="330" style="background: hsl(330, 100%, 65%)"></div>
+                        </div>
+                    </div>
+
+                    <button id="join-btn">Entrar al Juego</button>
+
+                    <div class="lobby-footer">
+                        <p>Usa el ratón o toca la pantalla para poner plataformas.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="players-info">
+                Jugadores: <span id="active-players">0</span>/10<br>
+                En Cola: <span id="queue-players">0</span>
+                <button id="share-url-btn" title="Copiar Link para Invitar">🔗 Compartir</button>
+            </div>
+
+            <!-- Vista para Espectadores (Modo Cola) -->
+            <div id="queue-overlay" class="hidden">
+                <h2>Modo Espectador</h2>
+                <p>Estás en la posición <strong id="queue-position"></strong> de la cola.</p>
+                <p>Espera a que un jugador salga o quede inactivo para entrar.</p>
+                <!-- Opcional / Integración Rewarded Ad -->
+                <button id="reward-ad-btn">Ver anuncio para saltar la cola</button>
+            </div>
+            <!-- Chat Global -->
+            <div id="chat-container" class="minimized">
+                <div id="chat-messages"></div>
+                <input type="text" id="chat-input" placeholder="Escribe un mensaje..." maxlength="100">
+            </div>
+            <button id="mobile-chat-btn">💬</button>
+        </div>
+    </div>
+
+    <!-- Espacio Publicitario Inferior Sticky Móvil -->
+    <div class="ad-container ad-bottom">
+        <span class="ad-placeholder">Bottom Sticky Ad</span>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
+</body>
+
+</html>

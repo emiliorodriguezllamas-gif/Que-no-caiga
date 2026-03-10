@@ -1,0 +1,13 @@
+{
+  "name": "drop-and-bounce",
+  "version": "1.0.0",
+  "description": "Juego web cooperativo global",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  }
+}
