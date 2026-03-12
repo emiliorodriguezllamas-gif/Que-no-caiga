@@ -186,20 +186,65 @@ function setupSocketEvents() {
     });
 
     let ballTrail = [];
+    let currentState = null;
 
-    // Renderizado del juego a 60 FPS desde el servidor
+    // Función rápida para el efecto neón simulado sin usar shadowBlur (súper rápido)
+    function drawFakeGlowRect(x, y, w, h, color) {
+        ctx.fillStyle = color;
+        // Núcleo brillante
+        ctx.globalAlpha = 1.0;
+        ctx.fillRect(x - w / 2, y - h / 2, w, h);
+        // Resplandor 1
+        ctx.globalAlpha = 0.4;
+        ctx.fillRect(x - w / 2 - 4, y - h / 2 - 4, w + 8, h + 8);
+        // Resplandor 2
+        ctx.globalAlpha = 0.15;
+        ctx.fillRect(x - w / 2 - 10, y - h / 2 - 10, w + 20, h + 20);
+        
+        ctx.globalAlpha = 1.0; // Reset
+    }
+
+    function drawFakeGlowCircle(x, y, radius, color) {
+        ctx.fillStyle = color;
+        // Núcleo
+        ctx.globalAlpha = 1.0;
+        ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
+        // Resplandor 1
+        ctx.globalAlpha = 0.4;
+        ctx.beginPath(); ctx.arc(x, y, radius * 1.5, 0, Math.PI * 2); ctx.fill();
+        // Resplandor 2
+        ctx.globalAlpha = 0.15;
+        ctx.beginPath(); ctx.arc(x, y, radius * 2.5, 0, Math.PI * 2); ctx.fill();
+        
+        ctx.globalAlpha = 1.0; // Reset
+    }
+
+    // Recepción del estado a 60 FPS desde el servidor (Solo lógica, NO dibujado)
     socket.on('state', (state) => {
-        // 1. Actualizar Score UI
-        currentScoreEl.innerText = state.score;
-        highScoreEl.innerText = 'Record: ' + state.highScore;
-        activePlayersEl.innerText = state.activeCount;
+        currentState = state;
 
-        // 2. Limpiar Frame
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // 1. Actualizar textos de UI solo si cambian (ahorra repintado en el DOM)
+        if (currentScoreEl.innerText != state.score) currentScoreEl.innerText = state.score;
+        let hsText = 'Record: ' + state.highScore;
+        if (highScoreEl.innerText != hsText) highScoreEl.innerText = hsText;
+        if (activePlayersEl.innerText != state.activeCount) activePlayersEl.innerText = state.activeCount;
 
-        // Guardar posición para el rastro
+        // Guardar posiciones del rastro lógicamente
         ballTrail.push({ x: state.ball.x, y: state.ball.y });
         if (ballTrail.length > 10) ballTrail.shift();
+    });
+
+    // Bucle de renderizado desacoplado y optimizado
+    function render() {
+        if (!currentState) {
+            requestAnimationFrame(render);
+            return;
+        }
+
+        const state = currentState;
+
+        // Limpiar Frame (usando fillRect con un color sólido en vez de clearRect puede veces ser más rápido, pero clearRect está bien)
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Dibujar Rastro
         ballTrail.forEach((pos, index) => {
@@ -213,50 +258,34 @@ function setupSocketEvents() {
             ctx.fill();
         });
 
-        // Opcional: dibujar bordes del área del juego para claridad responsiva
+        // Opcional: dibujar bordes del área del juego (sencillo, sin efectos)
         ctx.strokeStyle = 'rgba(102, 252, 241, 0.1)';
         ctx.lineWidth = 2;
         ctx.strokeRect(offsetX, offsetY, 1000 * displayScale, 1000 * displayScale);
 
-        // 3. Dibujar Plataformas (Barras de los jugadores)
-        ctx.shadowBlur = 15;
+        // Dibujar Plataformas optimizadas
         for (let platform of state.platforms) {
-            // Efecto visual: si fue golpeada parpadea en blanco brevemente, si no muestra el color del jugador
-            ctx.fillStyle = platform.hit ? '#ffffff' : (platform.color || '#66fcf1');
-            ctx.shadowColor = platform.hit ? '#ffffff' : (platform.color || '#66fcf1');
-
+            const color = platform.hit ? '#ffffff' : (platform.color || '#66fcf1');
             const px = offsetX + platform.x * displayScale;
             const py = offsetY + platform.y * displayScale;
             const pWidth = platform.width * displayScale;
             const pHeight = platform.height * displayScale;
 
-            ctx.beginPath();
-            // Alternativamente a roundRect, podemos usar arcos o un simple relleno
-            if (ctx.roundRect) {
-                ctx.roundRect(px - pWidth / 2, py - pHeight / 2, pWidth, pHeight, 5);
-            } else {
-                ctx.fillRect(px - pWidth / 2, py - pHeight / 2, pWidth, pHeight);
-            }
-            ctx.fill();
+            drawFakeGlowRect(px, py, pWidth, pHeight, color);
         }
 
-        // 4. Dibujar Bola (Pelota Principal Global)
-        ctx.fillStyle = '#ff0055';
-        ctx.shadowColor = '#ff0055';
-        ctx.shadowBlur = 25;
-
+        // Dibujar Bola Principal optimizada
         const bx = offsetX + state.ball.x * displayScale;
         const by = offsetY + state.ball.y * displayScale;
-
         const actualRadius = state.ball.radius * displayScale;
 
-        ctx.beginPath();
-        ctx.arc(bx, by, actualRadius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.closePath();
+        drawFakeGlowCircle(bx, by, actualRadius, '#ff0055');
 
-        ctx.shadowBlur = 0; // reset
-    });
+        requestAnimationFrame(render);
+    }
+    
+    // Iniciar el bucle de renderizado
+    requestAnimationFrame(render);
 
 
     // ------------------------------------------------------------------

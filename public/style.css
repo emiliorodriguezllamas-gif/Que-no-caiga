@@ -10,12 +10,14 @@ body,
 html {
     width: 100%;
     height: 100%;
+    height: 100dvh;
     background-color: #0b0c10;
     color: #66fcf1;
     font-family: 'Orbitron', sans-serif;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    touch-action: none; /* Prevent double-tap zoom on mobile */
 }
 
 /* Espacios para Monetización (Ads) */
@@ -169,23 +171,46 @@ html {
 }
 
 
-@media (max-width: 600px) {
+@media (max-width: 1024px) {
     #current-score {
-        font-size: 35vw;
+        font-size: 20vw;
+    }
+    #high-score {
+        font-size: 4vw;
+    }
+}
+
+@media (max-width: 600px) {
+    #players-info {
+        font-size: 11px;
+        padding: 6px 10px;
+        top: 10px;
+        right: 10px;
+    }
+
+    #current-score {
+        font-size: 25vw;
     }
 
     #high-score {
-        font-size: 6vw;
+        font-size: 5vw;
     }
 
     #chat-container {
-        width: 180px;
+        width: calc(100% - 80px); /* Deja espacio para el botón del chat */
+        max-width: 300px;
+        height: 200px;
         left: 10px;
-        bottom: 80px;
+        bottom: 70px; /* Ajusta por si la ad-bottom molesta */
     }
 
     #mobile-chat-btn {
         display: flex;
+        bottom: 70px;
+        right: 10px;
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
     }
 }
 
