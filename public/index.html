@@ -92,8 +92,51 @@
         </a>
     </div>
 
+    <!-- Pantalla Anti-AdBlock -->
+    <div id="adblock-overlay" class="hidden">
+        <div class="adblock-content">
+            <h2>⚠️ AdBlock Detectado</h2>
+            <p>Los servidores de este juego gratuito se mantienen gracias a los anuncios.</p>
+            <p>Por favor, <strong>pausa o desactiva tu bloqueador de anuncios</strong> (AdBlock, uBlock, Brave Shields...) en esta web para poder jugar.</p>
+            <button onclick="window.location.reload()">Ya lo he pausado, recargar página</button>
+        </div>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
+    
+    <!-- Detector de Adblocker -->
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                let isBlocked = false;
+                
+                // Forma 1: Detectar bloqueos de elementos visuales (clases trampa que suelen ocultar)
+                const adTest = document.createElement('div');
+                adTest.innerHTML = '&nbsp;';
+                adTest.className = 'adsbox ad-container ad-banner pub_300x250';
+                adTest.style.position = 'absolute';
+                adTest.style.top = '-1000px';
+                document.body.appendChild(adTest);
+                
+                if (adTest.offsetHeight === 0) {
+                    isBlocked = true;
+                }
+                adTest.remove();
+
+                // Forma 2: Intentar hacer ping falso a la URL de Monetag que suelen bloquear (Fetch API)
+                fetch('https://5gvci.com/act/files/tag.min.js', { mode: 'no-cors' })
+                    .catch(() => {
+                        // Si falla la petición (porque el cliente lo bloquea tipo ERR_BLOCKED_BY_CLIENT) saltará aquí
+                        document.getElementById('adblock-overlay').classList.remove('hidden');
+                    });
+
+                if (isBlocked) {
+                    document.getElementById('adblock-overlay').classList.remove('hidden');
+                }
+            }, 1000); // Dar 1 segundo al AdBlocker para que haga efecto antes de comprobar
+        });
+    </script>
 </body>
 
 </html>

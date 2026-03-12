@@ -512,3 +512,65 @@ html {
         height: 30px;
     }
 }
+
+/* Pantalla Anti-AdBlocker */
+#adblock-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(11, 12, 16, 0.98);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Por encima de todo, incluido Lobby */
+    pointer-events: auto;
+}
+
+.adblock-content {
+    background: #1f2833;
+    border: 3px solid #ff0055;
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(255, 0, 85, 0.4);
+    max-width: 500px;
+    width: 90%;
+}
+
+.adblock-content h2 {
+    color: #ff0055;
+    font-size: 32px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.adblock-content p {
+    color: #c5c6c7;
+    margin-bottom: 15px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.adblock-content button {
+    margin-top: 20px;
+    background-color: transparent;
+    color: #66fcf1;
+    border: 2px solid #66fcf1;
+    padding: 12px 25px;
+    font-size: 16px;
+    font-family: inherit;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-transform: uppercase;
+}
+
+.adblock-content button:hover {
+    background-color: #66fcf1;
+    color: #0b0c10;
+    box-shadow: 0 0 15px #66fcf1;
+}
