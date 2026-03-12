@@ -105,36 +105,50 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
     
-    <!-- Detector de Adblocker -->
+    <!-- Detector de Adblocker Avanzado -->
     <script>
         window.addEventListener('load', () => {
+            // Darle más tiempo al Adblock Plus para que inyecte sus reglas CSS (1.5 segundos)
             setTimeout(() => {
                 let isBlocked = false;
                 
-                // Forma 1: Detectar bloqueos de elementos visuales (clases trampa que suelen ocultar)
-                const adTest = document.createElement('div');
-                adTest.innerHTML = '&nbsp;';
-                adTest.className = 'adsbox ad-container ad-banner pub_300x250';
-                adTest.style.position = 'absolute';
-                adTest.style.top = '-1000px';
-                document.body.appendChild(adTest);
+                // 1. Comprobar nuestros propios contenedores reales de anuncios
+                const topAd = document.querySelector('.ad-top');
+                const bottomAd = document.querySelector('.ad-bottom');
                 
-                if (adTest.offsetHeight === 0) {
+                if (topAd && (topAd.offsetHeight === 0 || window.getComputedStyle(topAd).display === 'none')) {
                     isBlocked = true;
                 }
-                adTest.remove();
-
-                // Forma 2: Intentar hacer ping falso a la URL de Monetag que suelen bloquear (Fetch API)
-                fetch('https://5gvci.com/act/files/tag.min.js', { mode: 'no-cors' })
-                    .catch(() => {
-                        // Si falla la petición (porque el cliente lo bloquea tipo ERR_BLOCKED_BY_CLIENT) saltará aquí
-                        document.getElementById('adblock-overlay').classList.remove('hidden');
-                    });
-
-                if (isBlocked) {
-                    document.getElementById('adblock-overlay').classList.remove('hidden');
+                if (bottomAd && (bottomAd.offsetHeight === 0 || window.getComputedStyle(bottomAd).display === 'none')) {
+                    isBlocked = true;
                 }
-            }, 1000); // Dar 1 segundo al AdBlocker para que haga efecto antes de comprobar
+                
+                // 2. Comprobar cebo visual para AdBlock Plus y uBlock
+                const bait = document.createElement('div');
+                bait.className = 'pub_300x250 pub_300x250m pub_728x90 text-ad textAd text_ad text_ads text-ads text-ad-links';
+                bait.style.width = '1px';
+                bait.style.height = '1px';
+                bait.style.position = 'absolute';
+                bait.style.left = '-1000px';
+                bait.style.top = '-1000px';
+                document.body.appendChild(bait);
+                
+                let baitStyle = window.getComputedStyle(bait);
+                if (bait.offsetHeight === 0 || baitStyle.display === 'none' || baitStyle.visibility === 'hidden') {
+                    isBlocked = true;
+                }
+                document.body.removeChild(bait);
+
+                // Si detectamos bloqueo, mostramos la pantalla roja inbaneable
+                if (isBlocked) {
+                    const overlay = document.getElementById('adblock-overlay');
+                    if(overlay) {
+                        overlay.classList.remove('hidden');
+                        // Bloquear clics y ratón en el fondo por si acaso
+                        document.getElementById('gameCanvas').style.pointerEvents = 'none';
+                    }
+                }
+            }, 1500); 
         });
     </script>
 </body>
