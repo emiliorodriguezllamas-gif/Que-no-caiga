@@ -105,50 +105,36 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
     
-    <!-- Detector de Adblocker Avanzado -->
+    <!-- Petición Cebo a un Script con nombre de anuncio (Adblockers lo cortarán al 100%) -->
+    <script src="ads.js"></script>
+
+    <!-- Detector de Adblocker Avanzado y Sencillo -->
     <script>
         window.addEventListener('load', () => {
-            // Darle más tiempo al Adblock Plus para que inyecte sus reglas CSS (1.5 segundos)
+            // Un Timeout corto para ver si 'ads.js' ha llegado a ejecutarse
             setTimeout(() => {
                 let isBlocked = false;
                 
-                // 1. Comprobar nuestros propios contenedores reales de anuncios
-                const topAd = document.querySelector('.ad-top');
-                const bottomAd = document.querySelector('.ad-bottom');
+                // Si la variable no existe, el Adblock impidió que ads.js se descargase
+                if (typeof window.adsAreNotBlocked === 'undefined') {
+                    isBlocked = true;
+                }
                 
+                // También verificamos si los Adblockers han "secuestrado" los bloques con inyección CSS
+                const topAd = document.querySelector('.ad-top');
                 if (topAd && (topAd.offsetHeight === 0 || window.getComputedStyle(topAd).display === 'none')) {
                     isBlocked = true;
                 }
-                if (bottomAd && (bottomAd.offsetHeight === 0 || window.getComputedStyle(bottomAd).display === 'none')) {
-                    isBlocked = true;
-                }
-                
-                // 2. Comprobar cebo visual para AdBlock Plus y uBlock
-                const bait = document.createElement('div');
-                bait.className = 'pub_300x250 pub_300x250m pub_728x90 text-ad textAd text_ad text_ads text-ads text-ad-links';
-                bait.style.width = '1px';
-                bait.style.height = '1px';
-                bait.style.position = 'absolute';
-                bait.style.left = '-1000px';
-                bait.style.top = '-1000px';
-                document.body.appendChild(bait);
-                
-                let baitStyle = window.getComputedStyle(bait);
-                if (bait.offsetHeight === 0 || baitStyle.display === 'none' || baitStyle.visibility === 'hidden') {
-                    isBlocked = true;
-                }
-                document.body.removeChild(bait);
 
-                // Si detectamos bloqueo, mostramos la pantalla roja inbaneable
+                // Si detectamos bloqueo, mostramos la pantalla roja obligatoria
                 if (isBlocked) {
                     const overlay = document.getElementById('adblock-overlay');
                     if(overlay) {
                         overlay.classList.remove('hidden');
-                        // Bloquear clics y ratón en el fondo por si acaso
                         document.getElementById('gameCanvas').style.pointerEvents = 'none';
                     }
                 }
-            }, 1500); 
+            }, 500); // 0.5s de gracia
         });
     </script>
 </body>
